@@ -8,8 +8,8 @@ class Episode(models.Model):
     city = models.CharField(max_length=100, verbose_name='Город')
 
     def __str__(self):
-        return f'Сезон {self.season_number}, Выпуск {self.episode_number} — {self.city}'
-    
+        return f"Сезон {self.season_number}, Выпуск {self.episode_number}, Город: {self.city}"
+
 class Heroine(models.Model):
     id_heroine = models.AutoField(primary_key=True)
     heroine_name = models.CharField(max_length=100, verbose_name='Имя героини')
@@ -18,7 +18,7 @@ class Heroine(models.Model):
     episode = models.OneToOneField(Episode, on_delete=models.CASCADE, related_name='heroine')
 
     def __str__(self):
-        return self.heroine_name
+        return f"{self.heroine_name}, Возраст: {self.heroine_age}, Эпизод: {self.episode}"
 
 class Father(models.Model):
     id_father = models.AutoField(primary_key=True)
@@ -28,15 +28,16 @@ class Father(models.Model):
     episode = models.OneToOneField(Episode, on_delete=models.CASCADE, related_name='father')
 
     def __str__(self):
-        return self.father_name if self.father_name else 'Без информации'
+        return (f"{self.father_name}, Возраст: {self.father_age}, Эпизод: {self.episode}" 
+                if self.father_name else 'Без информации')
 
 class Child(models.Model):
     id_child = models.AutoField(primary_key=True)
     child_name = models.CharField(max_length=100, verbose_name='Имя ребенка')
-    episode = models.OneToOneField(Episode, on_delete=models.CASCADE, related_name='child')
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='children', verbose_name='Эпизод')  # Change to ForeignKey
 
     def __str__(self):
-        return self.child_name
+        return f"Имя ребенка: {self.child_name}, Эпизод: {self.episode}"
 
 class Marker(models.Model):
     id_marker = models.AutoField(primary_key=True)
@@ -46,4 +47,5 @@ class Marker(models.Model):
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата добавления')
 
     def __str__(self):
-        return f'Метка для эпизода: Сезон {self.episode.season_number}, Выпуск {self.episode.episode_number}'
+        return (f"Эпизод: {self.episode}, Широта: {self.latitude}, Долгота: {self.longitude}, "
+                f"Дата добавления: {self.created_at}")
