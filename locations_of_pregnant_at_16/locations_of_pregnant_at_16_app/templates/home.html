@@ -5,18 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Приложение 'Беременна в 16'</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
 
+        /* Центрирование контента */
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* Стили для заголовка */
+        h1 {
+            font-size: 36px;
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+
+        /* Стили для параграфов */
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            max-width: 600px;
+            color: #555;
+        }
+
+        /* Стили для кнопки */
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        a:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
 </head>
 
 <body>
-    <div style="text-align: center; margin-top: 50px;">
+    <div class="container">
         <h1>Добро пожаловать в приложение 'По местам беременной в 16'</h1>
-        <p>Это приложение предназначено для просмотра мест в России, в которых снимали серии проекта "Беременна в 16".
-        </p>
-        <p>Вы можете нажимать на метки и просмтаривать подробную информацию о выпусках и их героях.</p>
-        <a href="{% url 'map_view' %}"
-            style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px;">Перейти
-            на карту</a>
+        <p>Это приложение предназначено для просмотра мест в России, в которых снимали серии проекта "Беременна в 16".</p>
+        <p>Вы можете нажимать на метки и просматривать подробную информацию о выпусках и их героях.</p>
+        <a href="{% url 'map_view' %}">Перейти на карту</a>
     </div>
 </body>
 
