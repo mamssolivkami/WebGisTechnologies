@@ -6,30 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карта мест съемок</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <style>
-        /* Стили для кнопки */
-        .back-button {
-            display: inline-block;
-            margin: 20px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Стили для карты */
-        #map {
-            height: 600px;
-            width: 100%;
-        }
-    </style>
 </head>
 
 <body>
@@ -39,35 +18,10 @@
     <a href="{% url 'home' %}" class="back-button">Вернуться на главную</a>
 
     <script>
-        var map = L.map('map').setView([55.751244, 37.618423], 5);  // Центр карты
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Добавление маркеров на карту
-        var markers = JSON.parse('{{ markers|escapejs }}');  // Преобразуем JSON строку в объект JavaScript
-
-        markers.forEach(function (marker) {
-            var childrenCount = marker.children_names.length;
-            var childrenLabel = childrenCount === 1 ? "Ребенок: " : "Дети: ";
-            var childrenInfo = childrenCount > 0 ? childrenLabel + marker.children_names.join(', ') : "Нет детей";
-
-            var fatherInfo = marker.father_name !== 'Нет информации' ?
-                "Отец: " + marker.father_name + " " + marker.father_age + " лет<br>" +
-                (marker.father_photo ? "<img src='" + marker.father_photo + "' alt='Фото отца' style='width: 100px; height: auto;'>" : "Нет фото") :
-                "Нет информации об отце";
-
-            L.marker([marker.latitude, marker.longitude]).addTo(map)
-                .bindPopup("<b>Сезон " + marker.season_number + ", Выпуск " + marker.episode_number + "</b><br>" +
-                    (marker.heroine_photo ? "<img src='" + marker.heroine_photo + "' alt='Фото героини' style='width: 100px; height: auto;'>" : "Нет фото") + // Добавление фото героини
-                    "<br>" +
-                    "Мама: " + marker.heroine_name + " " + marker.heroine_age + " лет<br>" +
-                    childrenInfo + "<br>" +
-                    fatherInfo + "<br>" +  
-                    "Дата создания метки: " + marker.date_of_creation + "<br>");
-        });
+        let markersData = '{{ markers|escapejs }}';
     </script>
+    
+    <script src="{% static 'js/map.js' %}"></script> 
 
 </body>
 

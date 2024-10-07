@@ -22,20 +22,20 @@ def map_view(request):
     markers_data = []
     for marker in markers:
         season_number = (
-            marker.episode.season_number if marker.episode else "Нет информации"
+            marker.episode.season_number if marker.episode else ""
         )
         episode_number = (
-            marker.episode.episode_number if marker.episode else "Нет информации"
+            marker.episode.episode_number if marker.episode else ""
         )
         heroine_name = (
             marker.episode.heroine.heroine_name
             if marker.episode and marker.episode.heroine
-            else "Нет информации"
+            else ""
         )
         heroine_age = (
             marker.episode.heroine.heroine_age
             if marker.episode and marker.episode.heroine
-            else "Нет информации"
+            else ""
         )
         children_names = [child.child_name for child in marker.episode.children.all()]
         created_at = marker.created_at.strftime("%Y-%m-%d %H:%M:%S")
@@ -44,12 +44,12 @@ def map_view(request):
             father_name = (
                 marker.episode.father.father_name
                 if marker.episode.father
-                else "Нет информации"
+                else ""
             )
             father_age = (
                 marker.episode.father.father_age
                 if marker.episode.father
-                else "Нет информации"
+                else ""
             )
             father_photo = (
                 marker.episode.father.father_photo.url
@@ -57,8 +57,8 @@ def map_view(request):
                 else ""
             )
         else:
-            father_name = "Нет информации"
-            father_age = "Нет информации"
+            father_name = ""
+            father_age = ""
             father_photo = ""
 
         markers_data.append(
