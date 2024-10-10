@@ -1,10 +1,10 @@
+{% load static %} 
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %} 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <title>Приложение 'Беременна в 16'</title>
 
@@ -17,6 +17,7 @@
         </p>
         <p>Вы можете нажимать на метки и просмтаривать подробную информацию о выпусках и их героях.</p>
         <a href="{% url 'map_view' %}">Перейти на карту</a>
+        <a href="{% url 'create_marker_view' %}">Добавить метку на карту</a>
     </div>
 </body>
 

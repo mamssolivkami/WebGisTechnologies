@@ -34,7 +34,7 @@ class Father(models.Model):
 class Child(models.Model):
     id_child = models.AutoField(primary_key=True)
     child_name = models.CharField(max_length=100, verbose_name='Имя ребенка')
-    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='children', verbose_name='Эпизод')  # Change to ForeignKey
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='children', verbose_name='Эпизод')  
 
     def __str__(self):
         return f"Имя ребенка: {self.child_name}, Эпизод: {self.episode}"
@@ -45,6 +45,7 @@ class Marker(models.Model):
     latitude = models.FloatField(verbose_name='Широта')
     longitude = models.FloatField(verbose_name='Долгота')
     created_at = models.DateTimeField(default=timezone.now, verbose_name='Дата добавления')
+    is_deleted = models.BooleanField(default=False, verbose_name='Метка удалена')  # Добавляем поле
 
     def __str__(self):
         return (f"Эпизод: {self.episode}, Широта: {self.latitude}, Долгота: {self.longitude}, "

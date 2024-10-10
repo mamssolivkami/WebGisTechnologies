@@ -9,19 +9,19 @@
     text-decoration: none;
     border-radius: 25px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    transition: background-color 0.3s, box-shadow 0.2s;
     font-family: 'Arial', sans-serif;
     font-size: 16px;
     z-index: 1000;
-    /* Чтобы кнопка оставалась над картой */
 }
 
 .back-button:hover {
     background-color: #0056b3;
-
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    /* Убрано свойство transform для устранения прыжка */
 }
 
+/* Стили для карты */
 #map {
     height: 600px;
     width: 100%;
@@ -30,7 +30,6 @@
     margin: 20px auto;
     max-width: 1200px;
 }
-
 
 .leaflet-popup-content {
     font-family: 'Arial', sans-serif;
@@ -53,15 +52,6 @@ body {
     background-color: #f4f4f9;
 }
 
-/* Общие стили */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-    color: #333;
-}
-
 /* Центрирование контента */
 .container {
     display: flex;
@@ -73,25 +63,8 @@ body {
     padding: 0 20px;
 }
 
-/* Стили для заголовка */
-h1 {
-    font-size: 36px;
-    color: #007BFF;
-    margin-bottom: 20px;
-}
-
-/* Стили для параграфов */
-p {
-    font-size: 18px;
-    line-height: 1.6;
-    margin-bottom: 15px;
-    max-width: 600px;
-    color: #555;
-}
-
-/* Стили для кнопки */
-a {
-
+/* Специфичные стили для кнопок только внутри body, чтобы не затронуть элементы карты */
+body a {
     margin-top: 30px;
     padding: 12px 30px;
     background-color: #007BFF;
@@ -103,8 +76,43 @@ a {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-a:hover {
+body a:hover {
     background-color: #0056b3;
-    transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Отключаем стили для кнопок + и - на карте */
+.leaflet-control-zoom a {
+    background-color: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Сброс стилей для ссылки OSM */
+.leaflet-control-attribution a {
+    color: #007BFF !important;
+    text-decoration: none !important;
+}
+
+.leaflet-control-attribution a:hover {
+    text-decoration: underline !important;
+}
+
+/* Отключаем стили для кнопок + и - на карте */
+.leaflet-control-zoom a {
+    background-color: initial !important; /* Убираем кастомный фон */
+    color: initial !important; /* Возвращаем исходный цвет */
+    box-shadow: initial !important; /* Убираем тень */
+    border-radius: initial !important; /* Возвращаем стандартные углы */
+}
+
+/* Сброс стилей для ссылки OSM */
+.leaflet-control-attribution a {
+    color: initial !important; /* Возвращаем исходный цвет */
+    text-decoration: initial !important; /* Убираем кастомное подчеркивание */
+}
+
+.leaflet-control-attribution a:hover {
+    text-decoration: initial !important; /* Возвращаем стандартное поведение при наведении */
 }

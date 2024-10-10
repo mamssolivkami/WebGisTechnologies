@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать новую метку</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Создание новой метки</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div>
+                <h3>Данные об эпизоде</h3>
+                {{ episode_form.as_p }}
+            </div>
+
+            <div>
+                <h3>Данные о героине</h3>
+                {{ heroine_form.as_p }}
+            </div>
+
+            <div>
+                <h3>Данные об отце (*при наличии*)</h3>
+                {{ father_form.as_p }}
+            </div>
+
+            <div id="children-container">
+                <h3>Данные о детях</h3>
+                {{ child_formset.management_form }}
+                {% for form in child_formset %}
+                <div class="child-form">
+                    {{ form.as_p }}
+                    {% if forloop.counter0 > 0 %}
+                    <button type="button" class="remove-child">Удалить ребенка</button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="empty-form-template" style="display: none;">
+                <div class="child-form">
+                    {{ child_formset.empty_form.as_p }}
+                    <button type="button" class="remove-child">Удалить ребенка</button>
+                </div>
+            </div>
+
+            <button type="button" id="add-child">Добавить ребенка</button>
+            <br><br>
+
+            <div>
+                <h3>Данные для маркера</h3>
+                {{ marker_form.as_p }}
+            </div>
+
+            <button type="submit">Создать метку</button>
+            <a href="{% url 'home' %}">Вернуться на главную</a>
+        </form>
+    </div>
+
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+            alert("{{ message }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+
+    <script src="{% static 'js/create_marker.js' %}"></script>
+</body>
+
+</html>
