@@ -7,12 +7,12 @@
     {{ marker_form.as_p }}
     {{ child_formset.management_form }}
     {% for form in child_formset %}
-    <div class="child-form">
-        {{ form.as_p }}
-        <button type="button" class="remove-child">Удалить</button>
-    </div>
+        <div class="child-form">
+            {{ form.as_p }}
+            <button type="button" class="remove-child">Удалить</button>
+        </div>
     {% endfor %}
     <button type="submit">Сохранить изменения</button>
+<script type="module" src="index.js"></script>
 </form>
 
-<script src="{% static 'js/map.js' %}"></script>
