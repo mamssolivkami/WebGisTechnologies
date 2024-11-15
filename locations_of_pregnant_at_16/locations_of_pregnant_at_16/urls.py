@@ -24,6 +24,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('admin/', admin.site.urls),
     path('map/', views.map_view, name='map_view'),
+    path('map/markers/', views.markers_view, name='markers_view'),
     path('create_marker/', views.create_marker, name='create_marker_view'),
     path('map/delete_marker/<int:marker_id>/', views.delete_marker, name='delete_marker'),
     path('map/edit_marker/<int:marker_id>/', views.edit_marker, name='edit_marker'),

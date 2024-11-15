@@ -5,6 +5,8 @@ class MarkerService {
 
     async getAll() {
         const response = await fetch(this.url);
+
+
         return response.json();
     }
 
@@ -48,4 +50,4 @@ class MarkerService {
     }
 }
 
-export default new MarkerService('YOUR_API_URL'); // Замените 'YOUR_API_URL' на фактический URL вашего API
+export default new MarkerService('http://127.0.0.1:8000/map/markers/'); 

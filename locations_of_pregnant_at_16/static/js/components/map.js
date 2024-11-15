@@ -6,11 +6,13 @@ export function initMap() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
-
+    
     loadMarkers(map);
 }
 
 async function loadMarkers(map) {
+
+   
     let markersData = await markerService.getAll();
     markersData.forEach(marker => {
         const childrenCount = marker.children_names.length;

@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.forms import modelformset_factory
 from .models import Child, Episode, Heroine, Father, Marker
@@ -18,8 +18,10 @@ from django.contrib import messages
 def home(request):
     return render(request, "home.html")
 
-
 def map_view(request):
+    return render(request, "map.html")
+
+def markers_view(request):
     markers = (
         Marker.objects.select_related("episode__heroine")
         .prefetch_related("episode__children", "episode__father")
@@ -84,7 +86,7 @@ def map_view(request):
             }
         )
 
-    return render(request, "map.html", {"markers": json.dumps(markers_data)})
+        return HttpResponse(json.dumps(markers_data))
 
 
 def delete_marker(request, marker_id):
