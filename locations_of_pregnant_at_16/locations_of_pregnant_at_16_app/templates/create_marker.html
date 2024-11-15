@@ -5,6 +5,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/button.css' %}">
+    <link rel="stylesheet" href="{% static 'css/create_marker.css' %}">
+    <a href="{% url 'home' %}" class="back-button"> Назад </a>
     <title>Создать новую метку</title>
 </head>
 
@@ -58,7 +61,7 @@
         </div>
 
         <button type="submit">Создать метку</button>
-        <a href="{% url 'home' %}">Вернуться на главную</a>
+
     </form>
 </div>
 
@@ -75,5 +78,6 @@
 <script type="module" src="index.js"></script>
 
 </body>
+
 
 </html>

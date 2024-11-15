@@ -5,17 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+     <link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+    <link rel="stylesheet" href="{% static 'css/button.css' %}">
     <title>Приложение 'Беременна в 16'</title>
 
 </head>
 
-<body>
+<body class="container-home-page">
     <div>
-        <h1>Добро пожаловать в приложение 'По местам беременной в 16'</h1>
-        <p>Это приложение предназначено для просмотра мест в России, в которых снимали серии проекта "Беременна в 16".
+        <h1 class="title">Добро пожаловать в приложение 'По местам беременной в 16'</h1>
+        <p class="description">Это приложение предназначено для просмотра мест в России, в которых снимали серии проекта "Беременна в 16".
         </p>
-        <p>Вы можете нажимать на метки и просмтаривать подробную информацию о выпусках и их героях.</p>
+        <p class="description">Вы можете нажимать на метки и просмтаривать подробную информацию о выпусках и их героях.</p>
         <a href="{% url 'map_view' %}">Перейти на карту</a>
         <a href="{% url 'create_marker_view' %}">Добавить метку на карту</a>
     </div>

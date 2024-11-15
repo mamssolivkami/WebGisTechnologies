@@ -6,16 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Карта мест съемок</title>
+    <link rel="stylesheet" href="{% static 'css/button.css' %}">
+    <link rel="stylesheet" href="{% static 'css/map.css' %}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body>
 
+<a href="{% url 'home' %}" class="back-button"> Назад </a>
 <div id="map"></div>
 
-<a href="{% url 'home' %}" class="back-button">Вернуться на главную</a>
 
 <script>
     let markersData = '{{ markers|escapejs }}';
