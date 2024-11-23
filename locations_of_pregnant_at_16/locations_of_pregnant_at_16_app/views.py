@@ -13,13 +13,16 @@ from django.forms import inlineformset_factory
 from django.utils import timezone
 import json
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 
 
 def home(request):
     return render(request, "home.html")
 
+
 def map_view(request):
     return render(request, "map.html")
+
 
 def markers_view(request):
     markers = (
@@ -86,78 +89,7 @@ def markers_view(request):
             }
         )
 
-        return HttpResponse(json.dumps(markers_data))
-
-
-def delete_marker(request, marker_id):
-    if request.method == "POST":
-        try:
-            marker = Marker.objects.get(id_marker=marker_id)
-            print(marker_id)
-            marker.is_deleted = True
-            marker.save()
-            return JsonResponse({"success": True})
-        except Marker.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Метка не найдена"})
-    return JsonResponse({"success": False, "error": "Неверный метод"})
-
-
-def edit_marker(request, marker_id):
-    marker = get_object_or_404(Marker, id_marker=marker_id)
-    episode = marker.episode
-    heroine = episode.heroine
-    father = episode.father if hasattr(episode, "father") else None
-    children = episode.children.all()
-
-    if request.method == "POST":
-        episode_form = EpisodeForm(request.POST, instance=episode)
-        heroine_form = HeroineForm(request.POST, request.FILES, instance=heroine)
-        father_form = FatherForm(request.POST, request.FILES, instance=father)
-        marker_form = MarkerForm(request.POST, instance=marker)
-
-        ChildFormSet = child_formset_factory(len(children))
-        child_formset = ChildFormSet(request.POST, queryset=children, prefix="child_set")
-
-        if (
-            episode_form.is_valid()
-            and heroine_form.is_valid()
-            and marker_form.is_valid()
-            and child_formset.is_valid()
-        ):
-            episode_form.save()
-            heroine_form.save()
-            if father_form.is_valid() and father_form.cleaned_data.get("father_name"):
-                father_form.save()
-
-            marker_form.save()
-
-            for child_form in child_formset:
-                if child_form.is_valid():
-                    child = child_form.save(commit=False)
-                    child.episode = episode 
-                    child.save()
-
-            return redirect("map_view")
-
-    else:
-        episode_form = EpisodeForm(instance=episode)
-        heroine_form = HeroineForm(instance=heroine)
-        father_form = FatherForm(instance=father)
-        marker_form = MarkerForm(instance=marker)
-
-        ChildFormSet = child_formset_factory(len(children))
-        child_formset = ChildFormSet(queryset=children, prefix="child_set")
-
-    context = {
-        "episode_form": episode_form,
-        "heroine_form": heroine_form,
-        "father_form": father_form,
-        "marker_form": marker_form,
-        "child_formset": child_formset,
-        "marker_id": marker.id_marker,
-    }
-
-    return render(request, "edit_marker.html", context)
+    return HttpResponse(json.dumps(markers_data))
 
 
 def create_marker(request):
@@ -295,3 +227,147 @@ def create_marker(request):
     }
 
     return render(request, "create_marker.html", context)
+
+
+def delete_marker(request, marker_id):
+    if request.method == "POST":
+        try:
+            marker = Marker.objects.get(id_marker=marker_id)
+            print(marker_id)
+            marker.is_deleted = True
+            marker.save()
+            return JsonResponse({"success": True})
+        except Marker.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Метка не найдена"})
+    return JsonResponse({"success": False, "error": "Неверный метод"})
+
+
+def get_marker_by_id(request, id):
+    """
+    Возвращает данные маркера и связанной информации о героине, отце и детях.
+    """
+    marker = get_object_or_404(Marker, id_marker=id)
+    episode = marker.episode
+
+    marker_data = {
+        "id_marker": marker.id_marker,
+        "latitude": marker.latitude,
+        "longitude": marker.longitude,
+        "date_of_creation": marker.created_at,
+        "season_number": episode.season_number,
+        "episode_number": episode.episode_number,
+        "city": episode.city,
+    }
+
+    heroine_data = {
+        "heroine_name": episode.heroine.heroine_name,
+        "heroine_age": episode.heroine.heroine_age,
+        "heroine_photo": (
+            episode.heroine.heroine_photo.url if episode.heroine.heroine_photo else None
+        ),
+    }
+
+    father_data = (
+        {
+            "father_name": episode.father.father_name,
+            "father_age": episode.father.father_age,
+            "father_photo": (
+                episode.father.father_photo.url if episode.father.father_photo else None
+            ),
+        }
+        if hasattr(episode, "father") and episode.father is not None
+        else None
+    )
+
+    children = list(episode.children.all())
+    children_label = (
+        "Ребенок:"
+        if len(children) == 1
+        else "Ребенок" if len(children) > 1 else "Нет детей"
+    )
+    children_data = [{"child_name": child.child_name} for child in children]
+
+    response_data = {
+        "marker": marker_data,
+        "heroine": heroine_data,
+        "father": father_data,
+        "children": {
+            "label": children_label,
+            "data": children_data,
+        },
+    }
+
+    return JsonResponse(response_data)
+
+
+@csrf_exempt
+def edit_marker(request, marker_id):
+    marker = get_object_or_404(Marker, id_marker=marker_id)
+    episode = marker.episode
+    heroine = episode.heroine
+    father = episode.father if hasattr(episode, "father") else None
+    children = episode.children.all()
+
+    if request.method == "POST":
+        episode_form = EpisodeForm(request.POST, instance=episode)
+        heroine_form = HeroineForm(request.POST, instance=heroine)
+        father_form = FatherForm(request.POST, instance=father)
+        marker_form = MarkerForm(request.POST, instance=marker)
+
+        ChildFormSet = child_formset_factory(len(children))
+        child_formset = ChildFormSet(
+            request.POST, queryset=children, prefix="child_set"
+        )
+
+        if (
+            episode_form.is_valid()
+            and heroine_form.is_valid()
+            and marker_form.is_valid()
+            and child_formset.is_valid()
+        ):
+            episode_form.save()
+            heroine_form.save()
+            if father_form.is_valid() and father_form.cleaned_data.get("father_name"):
+                father_form.save()
+
+            marker_form.save()
+
+            for child_form in child_formset:
+                if child_form.is_valid():
+                    child = child_form.save(commit=False)
+                    child.episode = episode
+                    child.save()
+
+            return JsonResponse({"message": "Метка успешно обновлена."})
+
+        errors = {
+            "episode_errors": episode_form.errors,
+            "heroine_errors": heroine_form.errors,
+            "father_errors": father_form.errors,
+            "marker_errors": marker_form.errors,
+            "children_errors": [form.errors for form in child_formset],
+        }
+        return JsonResponse(
+            {"message": "Ошибка обновления метки.", "errors": errors}, status=400
+        )
+
+    marker_data = {
+        "marker": {
+            "season_number": marker.episode.season_number,
+            "episode_number": marker.episode.episode_number,
+            "city": marker.city,
+            "latitude": marker.latitude,
+            "longitude": marker.longitude,
+        },
+        "heroine": {
+            "heroine_name": heroine.heroine_name,
+            "heroine_age": heroine.heroine_age,
+        },
+        "father": {
+            "father_name": father.father_name if father else "",
+            "father_age": father.father_age if father else "",
+        },
+        "children": [{"child_name": child.child_name} for child in children],
+    }
+
+    return JsonResponse(marker_data)

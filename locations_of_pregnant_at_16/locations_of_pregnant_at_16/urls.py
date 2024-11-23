@@ -26,8 +26,9 @@ urlpatterns = [
     path('map/', views.map_view, name='map_view'),
     path('map/markers/', views.markers_view, name='markers_view'),
     path('create_marker/', views.create_marker, name='create_marker_view'),
-    path('map/delete_marker/<int:marker_id>/', views.delete_marker, name='delete_marker'),
-    path('map/edit_marker/<int:marker_id>/', views.edit_marker, name='edit_marker'),
+    path('map/markers/delete_marker/<int:marker_id>/', views.delete_marker, name='delete_marker'),
+    path('map/markers/edit_marker/<int:marker_id>/', views.edit_marker, name='edit_marker'),
+    path('map/markers/<int:id>/', views.get_marker_by_id, name='get_marker_by_id'),
 ]
 
 if settings.DEBUG:

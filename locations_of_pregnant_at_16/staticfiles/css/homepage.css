@@ -1,0 +1,21 @@
+.container-home-page {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+.description {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.6;
+}
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
