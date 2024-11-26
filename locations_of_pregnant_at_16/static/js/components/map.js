@@ -54,8 +54,20 @@ export function deleteMarker(id) {
 
 window.deleteMarker = deleteMarker;
 
+export function getCSRFToken() {
+    return getCookie('csrftoken');
+}
+
 export async function editMarker(markerId) {
+    const csrfToken = getCSRFToken();
+
+    if (!csrfToken) {
+        alert("Не удалось получить CSRF-токен. Пожалуйста, обновите страницу.");
+        return;
+    }
+
     const markerData = await markerService.getById(markerId);
+    console.log(markerData);
 
     let childrenFields = '';
     if (markerData.children.data.length > 0) {
@@ -71,6 +83,7 @@ export async function editMarker(markerId) {
 
     const formHtml = `
         <form id="edit-marker-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
             <label>Сезон:</label><input type="number" name="season_number" value="${markerData.marker.season_number}"><br>
             <label>Выпуск:</label><input type="number" name="episode_number" value="${markerData.marker.episode_number}"><br>
             <label>Город:</label><input type="text" name="city" value="${markerData.marker.city}"><br>
@@ -123,22 +136,16 @@ export async function editMarker(markerId) {
             const childName = formData.get(`child_name_${index}`);
             if (childName) {
                 object.children.push({
-                    id: child.id || null,
+                    id_child: child.id_child || null,
                     child_name: childName,
                 });
             }
         });
+        console.log("КЛИЕНТ");
         console.log(JSON.stringify(object));
         // Отправка данных через метод `put` сервиса
         try {
             const response = await markerService.put(object);
-            if (response.message) {
-                alert(response.message);
-                map.closePopup();
-                loadMarkers();
-            } else {
-                alert("Ошибка при обновлении маркера!");
-            }
         } catch (error) {
             console.error("Ошибка:", error);
             alert("Не удалось сохранить изменения.");
@@ -146,4 +153,4 @@ export async function editMarker(markerId) {
     });
 }
 
-window.editMarker = editMarker;
+window.editMarker = editMarker; 

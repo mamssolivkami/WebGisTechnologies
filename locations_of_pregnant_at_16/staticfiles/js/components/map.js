@@ -54,9 +54,19 @@ export function deleteMarker(id) {
 
 window.deleteMarker = deleteMarker;
 
+export function getCSRFToken() {
+    return getCookie('csrftoken');
+}
+
 export async function editMarker(markerId) {
+    const csrfToken = getCSRFToken();
+
+    if (!csrfToken) {
+        alert("Не удалось получить CSRF-токен. Пожалуйста, обновите страницу.");
+        return;
+    }
+
     const markerData = await markerService.getById(markerId);
-    console.log("ID маркера:", markerId);
 
     let childrenFields = '';
     if (markerData.children.data.length > 0) {
@@ -72,6 +82,7 @@ export async function editMarker(markerId) {
 
     const formHtml = `
         <form id="edit-marker-form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
             <label>Сезон:</label><input type="number" name="season_number" value="${markerData.marker.season_number}"><br>
             <label>Выпуск:</label><input type="number" name="episode_number" value="${markerData.marker.episode_number}"><br>
             <label>Город:</label><input type="text" name="city" value="${markerData.marker.city}"><br>
@@ -94,29 +105,30 @@ export async function editMarker(markerId) {
     const form = document.getElementById("edit-marker-form");
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData(form);
         const object = {};
-    
+
         // Собираем данные для основной части формы
+        object.id_marker = markerId;
         object.season_number = formData.get("season_number");
         object.episode_number = formData.get("episode_number");
         object.city = formData.get("city");
         object.latitude = formData.get("latitude");
         object.longitude = formData.get("longitude");
-    
+
         // Данные героини
         object.heroine = {
             heroine_name: formData.get("heroine_name"),
             heroine_age: parseInt(formData.get("heroine_age"), 10),
         };
-    
+
         // Данные отца
         object.father = {
             father_name: formData.get("father_name") || null,
             father_age: formData.get("father_age") ? parseInt(formData.get("father_age"), 10) : null,
         };
-    
+
         // Данные детей
         object.children = [];
         markerData.children.data.forEach((child, index) => {
@@ -128,24 +140,23 @@ export async function editMarker(markerId) {
                 });
             }
         });
-    
+        console.log("КЛИЕНТ");
+        console.log(JSON.stringify(object));
         // Отправка данных через метод `put` сервиса
         try {
             const response = await markerService.put(object);
-            console.log(object);
             if (response.message) {
                 alert(response.message);
                 map.closePopup();
                 loadMarkers();
             } else {
-                console.error(response.errors);
                 alert("Ошибка при обновлении маркера!");
             }
         } catch (error) {
             console.error("Ошибка:", error);
             alert("Не удалось сохранить изменения.");
         }
-    });    
+    });
 }
 
 window.editMarker = editMarker;

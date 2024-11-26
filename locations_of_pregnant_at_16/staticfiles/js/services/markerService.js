@@ -40,15 +40,16 @@ class MarkerService {
     }
 
     async put(object) {
-        const response = await fetch(`${this.url}edit_marker/${object.id}/`, {
+        const response = await fetch(`${this.url}edit_marker/${object.id_marker}/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(object),
         });
         return response.json();
+        console.log(response);
     }
 }
 

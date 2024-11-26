@@ -49,7 +49,6 @@ class MarkerService {
             body: JSON.stringify(object),
         });
         return response.json();
-        console.log(response);
     }
 }
 

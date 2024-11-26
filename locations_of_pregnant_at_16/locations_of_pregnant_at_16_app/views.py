@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.forms import modelformset_factory
+from django.forms import ValidationError, modelformset_factory
 from .models import Child, Episode, Heroine, Father, Marker
 from .forms import (
     EpisodeForm,
@@ -285,7 +285,7 @@ def get_marker_by_id(request, id):
         if len(children) == 1
         else "Ребенок" if len(children) > 1 else "Нет детей"
     )
-    children_data = [{"child_name": child.child_name} for child in children]
+    children_data = [{"id_child": child.id_child ,"child_name": child.child_name} for child in children]
 
     response_data = {
         "marker": marker_data,
@@ -300,6 +300,7 @@ def get_marker_by_id(request, id):
     return JsonResponse(response_data)
 
 
+
 @csrf_exempt
 def edit_marker(request, marker_id):
     marker = get_object_or_404(Marker, id_marker=marker_id)
@@ -309,65 +310,99 @@ def edit_marker(request, marker_id):
     children = episode.children.all()
 
     if request.method == "POST":
-        episode_form = EpisodeForm(request.POST, instance=episode)
-        heroine_form = HeroineForm(request.POST, instance=heroine)
-        father_form = FatherForm(request.POST, instance=father)
-        marker_form = MarkerForm(request.POST, instance=marker)
+        csrf_token = request.META.get('HTTP_X_CSRFTOKEN')
+        print(csrf_token)
+        if not csrf_token:
+            print({"error": "CSRF token missing"}, status=403)
+        data = json.loads(request.body) 
 
-        ChildFormSet = child_formset_factory(len(children))
-        child_formset = ChildFormSet(
-            request.POST, queryset=children, prefix="child_set"
-        )
+        try:
+            # Обновление данных метки
+            marker.latitude = data.get("latitude", marker.latitude)
+            marker.longitude = data.get("longitude", marker.longitude)
+            marker.save()
 
-        if (
-            episode_form.is_valid()
-            and heroine_form.is_valid()
-            and marker_form.is_valid()
-            and child_formset.is_valid()
-        ):
-            episode_form.save()
-            heroine_form.save()
-            if father_form.is_valid() and father_form.cleaned_data.get("father_name"):
-                father_form.save()
+            # Обновление данных эпизода
+            episode.season_number = data.get("season_number", episode.season_number)
+            episode.episode_number = data.get("episode_number", episode.episode_number)
+            episode.city = data.get("city", episode.city)
+            episode.save()
 
-            marker_form.save()
+            # Обновление данных героини
+            heroine.heroine_name = data["heroine"].get(
+                "heroine_name", heroine.heroine_name
+            )
+            heroine.heroine_age = data["heroine"].get(
+                "heroine_age", heroine.heroine_age
+            )
+            heroine.save()
 
-            for child_form in child_formset:
-                if child_form.is_valid():
-                    child = child_form.save(commit=False)
-                    child.episode = episode
-                    child.save()
+            # Обновление данных отца
+            if "father" in data and data["father"]:
+                if not father:
+                    from .models import Father
+
+                    father = Father(episode=episode)
+                father.father_name = data["father"].get(
+                    "father_name", father.father_name
+                )
+                father.father_age = data["father"].get("father_age", father.father_age)
+                father.save()
+            
+            # Обновление данных детей
+            if "children" in data:
+                from .models import Child
+
+                child_ids = (
+                    []
+                )  # Список идентификаторов детей, которые остаются связанными с эпизодом
+                for child_data in data["children"]:
+                    # Обновление данных детей
+                    if "children" in data:
+                        child_ids = []  # Список идентификаторов детей, которые остаются связанными с эпизодом
+                        for child_data in data["children"]:
+                            if "id_child" in child_data and child_data["id_child"]:
+                                # Обновляем существующих детей
+                                child = get_object_or_404(Child, id=child_data["id_child"])
+                                child.child_name = child_data.get("child_name", child.child_name)
+                                child.save()
+                                child_ids.append(child.id_child)
+
+                        # Удаляем детей, которые были связаны с эпизодом, но больше не переданы в данных
+                        episode.children.exclude(id__in=child_ids).delete()
 
             return JsonResponse({"message": "Метка успешно обновлена."})
+        except ValidationError as e:
+            return JsonResponse(
+                {"message": "Ошибка валидации данных.", "errors": e.message_dict},
+                status=400,
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"message": "Ошибка обновления данных.", "errors": str(e)}, status=400
+            )
 
-        errors = {
-            "episode_errors": episode_form.errors,
-            "heroine_errors": heroine_form.errors,
-            "father_errors": father_form.errors,
-            "marker_errors": marker_form.errors,
-            "children_errors": [form.errors for form in child_formset],
+    if request.method == "GET":
+        marker_data = {
+            "marker": {
+                "season_number": marker.episode.season_number,
+                "episode_number": marker.episode.episode_number,
+                "city": marker.episode.city,
+                "latitude": marker.latitude,
+                "longitude": marker.longitude,
+            },
+            "heroine": {
+                "heroine_name": heroine.heroine_name,
+                "heroine_age": heroine.heroine_age,
+            },
+            "father": {
+                "father_name": father.father_name if father else "",
+                "father_age": father.father_age if father else "",
+            },
+            "children": [
+                {"id_child": child.id_child, "child_name": child.child_name} for child in children
+            ],
         }
-        return JsonResponse(
-            {"message": "Ошибка обновления метки.", "errors": errors}, status=400
-        )
+        return JsonResponse(marker_data)
 
-    marker_data = {
-        "marker": {
-            "season_number": marker.episode.season_number,
-            "episode_number": marker.episode.episode_number,
-            "city": marker.city,
-            "latitude": marker.latitude,
-            "longitude": marker.longitude,
-        },
-        "heroine": {
-            "heroine_name": heroine.heroine_name,
-            "heroine_age": heroine.heroine_age,
-        },
-        "father": {
-            "father_name": father.father_name if father else "",
-            "father_age": father.father_age if father else "",
-        },
-        "children": [{"child_name": child.child_name} for child in children],
-    }
-
-    return JsonResponse(marker_data)
+    return JsonResponse({"message": "Метод не поддерживается."}, status=405)

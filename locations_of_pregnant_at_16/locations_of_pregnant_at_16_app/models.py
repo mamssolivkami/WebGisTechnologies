@@ -37,7 +37,7 @@ class Child(models.Model):
     episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='children', verbose_name='Эпизод')  
 
     def __str__(self):
-        return f"Имя ребенка: {self.child_name}, Эпизод: {self.episode}"
+        return f"ID ребенка: {self.id_child}, Имя ребенка: {self.child_name}, Эпизод: {self.episode}"
 
 class Marker(models.Model):
     id_marker = models.AutoField(primary_key=True)
