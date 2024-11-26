@@ -19,6 +19,7 @@ from django.urls import path
 from locations_of_pregnant_at_16_app import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('map/markers/delete_marker/<int:marker_id>/', views.delete_marker, name='delete_marker'),
     path('map/markers/edit_marker/<int:marker_id>/', views.edit_marker, name='edit_marker'),
     path('map/markers/<int:id>/', views.get_marker_by_id, name='get_marker_by_id'),
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico')),
 ]
 
 if settings.DEBUG:

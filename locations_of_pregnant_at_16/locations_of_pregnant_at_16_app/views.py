@@ -260,6 +260,7 @@ def get_marker_by_id(request, id):
     }
 
     heroine_data = {
+        "id_heroine": episode.heroine.id_heroine,
         "heroine_name": episode.heroine.heroine_name,
         "heroine_age": episode.heroine.heroine_age,
         "heroine_photo": (
@@ -269,6 +270,7 @@ def get_marker_by_id(request, id):
 
     father_data = (
         {
+            "id_father": episode.father.id_father,
             "father_name": episode.father.father_name,
             "father_age": episode.father.father_age,
             "father_photo": (
@@ -285,7 +287,10 @@ def get_marker_by_id(request, id):
         if len(children) == 1
         else "Ребенок" if len(children) > 1 else "Нет детей"
     )
-    children_data = [{"id_child": child.id_child ,"child_name": child.child_name} for child in children]
+    children_data = [
+        {"id_child": child.id_child, "child_name": child.child_name}
+        for child in children
+    ]
 
     response_data = {
         "marker": marker_data,
@@ -300,7 +305,6 @@ def get_marker_by_id(request, id):
     return JsonResponse(response_data)
 
 
-
 @csrf_exempt
 def edit_marker(request, marker_id):
     marker = get_object_or_404(Marker, id_marker=marker_id)
@@ -310,11 +314,11 @@ def edit_marker(request, marker_id):
     children = episode.children.all()
 
     if request.method == "POST":
-        csrf_token = request.META.get('HTTP_X_CSRFTOKEN')
+        csrf_token = request.META.get("HTTP_X_CSRFTOKEN")
         print(csrf_token)
         if not csrf_token:
             print({"error": "CSRF token missing"}, status=403)
-        data = json.loads(request.body) 
+        data = json.loads(request.body)
 
         try:
             # Обновление данных метки
@@ -348,7 +352,7 @@ def edit_marker(request, marker_id):
                 )
                 father.father_age = data["father"].get("father_age", father.father_age)
                 father.save()
-            
+
             # Обновление данных детей
             if "children" in data:
                 from .models import Child
@@ -359,17 +363,23 @@ def edit_marker(request, marker_id):
                 for child_data in data["children"]:
                     # Обновление данных детей
                     if "children" in data:
-                        child_ids = []  # Список идентификаторов детей, которые остаются связанными с эпизодом
+                        child_ids = (
+                            []
+                        )  # Список идентификаторов детей, которые остаются связанными с эпизодом
                         for child_data in data["children"]:
                             if "id_child" in child_data and child_data["id_child"]:
                                 # Обновляем существующих детей
-                                child = get_object_or_404(Child, id=child_data["id_child"])
-                                child.child_name = child_data.get("child_name", child.child_name)
+                                child = get_object_or_404(
+                                    Child, id_child=child_data["id_child"]
+                                )
+                                child.child_name = child_data.get(
+                                    "child_name", child.child_name
+                                )
                                 child.save()
                                 child_ids.append(child.id_child)
 
                         # Удаляем детей, которые были связаны с эпизодом, но больше не переданы в данных
-                        episode.children.exclude(id__in=child_ids).delete()
+                        episode.children.exclude(id_child__in=child_ids).delete()
 
             return JsonResponse({"message": "Метка успешно обновлена."})
         except ValidationError as e:
@@ -400,7 +410,8 @@ def edit_marker(request, marker_id):
                 "father_age": father.father_age if father else "",
             },
             "children": [
-                {"id_child": child.id_child, "child_name": child.child_name} for child in children
+                {"id_child": child.id_child, "child_name": child.child_name}
+                for child in children
             ],
         }
         return JsonResponse(marker_data)

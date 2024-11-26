@@ -1,3 +1,4 @@
+
 import markerService from '../services/markerService.js';
 import { getCookie } from '../components/cookie.js';
 
@@ -14,8 +15,6 @@ export function initMap() {
 }
 
 async function loadMarkers() {
-
-    console.log('я инициализировался1')
     let markersData = await markerService.getAll();
     markersData.forEach(marker => {
         const childrenCount = marker.children_names.length;
@@ -146,6 +145,8 @@ export async function editMarker(markerId) {
         // Отправка данных через метод `put` сервиса
         try {
             const response = await markerService.put(object);
+            popup.close();
+            window.location.reload();
         } catch (error) {
             console.error("Ошибка:", error);
             alert("Не удалось сохранить изменения.");
